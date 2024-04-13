@@ -1,49 +1,51 @@
 const express=require("express");
 const router= express.Router();
 const { v4: uuid } = require('uuid');
-const VIDEOS_PATH= "../data/data.jason";
+const VIDEOS_PATH='./data/videos.json';
 const fs=require('fs')
-
-const readVideos = () => {
-    const videosData = JSON.parse(fs.readFileSync(VIDEOS_PATH));
-    return videosData;
-  }
-
-route.get('/videos/:id', (req, res) => {
-    const id = req.params.id;
-    const video = videos.find(video => video.id === id);
-    if (!video) {
-      return res.status(404).json({ error: 'Video not found' });
-    }
-    res.send(video);
-  })
   
 router.get("/", (req,res)=>{
-res.send(videos)
-})
+  const videosData = JSON.parse(fs.readFileSync(VIDEOS_PATH));
 
-// POST /albums/
-router.post('/', (req, res) => {
-    // JSON data sent in the request body is available through req.body
-    console.log('Req.body: ', req.body);
-  
-    // Read current albums
-    const videosData = readVideos();
-  
-    // Create a new album object
-    const newVideoObj = {
-      id: uuid(),
-      title: req.body.title,
-      xxxx: req.body.artist,
-      image: req.body.image
+  const videosSmallData = videosData.map(video => {
+    return{
+      id:video.id,
+      title:video.title,
+      channel:video.channel,
+      image:video.image
     }
+  })
+    res.json(200).json({videosSmallData})
+})
+    
+router.get('/id', (req, res) => {
+  const videosData = JSON.parse(fs.readFileSync(VIDEOS_PATH));
+    const {id} = req.params.id;
+    const featureVideo = videosData.find(video => video.id === id);
+    if (!featureVideo) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+    res.send(200).json(featureVideo);
+  })
   
-    // Push to albums array
-    albumsData.unshift(newVideobj);
+router.post('/', (req, res) => {
+  const newVideoData=req.body;
+  console.log('Req.body: ', req.body);
+  const videosData = JSON.parse(fs.readFileSync(VIDEOS_PATH));
+
+  const newVideoObj = {
+    id: uuid(),
+    Channel:"Guest Channel",
+    image:"http://localhost:8080/images/img9.jpg",
+    ...newVideoData
+  }
+
+  console.log(newVideoObj)
+
+  videosData.unshift(newVideoObj);
+  videosData.push(newVideoObj);
   
-    // Update my JSON with new array
-    fs.writeFileSync(VIDEOS_PATH, JSON.stringify(videosData));
-  
-    res.status(201).json(newVideoObj);
+  fs.writeFileSync(VIDEOS_PATH, JSON.stringify(videosData));
+  res.status(201).json(newVideoObj);
   });
 module.exports= router;
