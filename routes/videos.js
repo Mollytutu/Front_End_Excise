@@ -15,17 +15,20 @@ router.get("/", (req,res)=>{
       image:video.image
     }
   })
-    res.json(200).json({videosSmallData})
+
+  console.log(videosData)
+    res.status(200).json({videosSmallData})
 })
     
-router.get('/id', (req, res) => {
+router.get('/:vidoId', (req, res) => {
   const videosData = JSON.parse(fs.readFileSync(VIDEOS_PATH));
-    const {id} = req.params.id;
-    const featureVideo = videosData.find(video => video.id === id);
+  console.log(videosData)
+    const {videoId} = req.params.id;
+    const featureVideo = videosData.find(video => video.id === videoId);
     if (!featureVideo) {
       return res.status(404).json({ error: 'Video not found' });
     }
-    res.send(200).json(featureVideo);
+    res.status(200).json(featureVideo);
   })
   
 router.post('/', (req, res) => {
@@ -35,12 +38,10 @@ router.post('/', (req, res) => {
 
   const newVideoObj = {
     id: uuid(),
-    Channel:"Guest Channel",
+    channel:"Guest Channel",
     image:"http://localhost:8080/images/img9.jpg",
     ...newVideoData
   }
-
-  console.log(newVideoObj)
 
   videosData.unshift(newVideoObj);
   videosData.push(newVideoObj);
@@ -48,4 +49,5 @@ router.post('/', (req, res) => {
   fs.writeFileSync(VIDEOS_PATH, JSON.stringify(videosData));
   res.status(201).json(newVideoObj);
   });
+
 module.exports= router;
